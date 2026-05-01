@@ -5,9 +5,10 @@ A full-stack microservices social platform for developers to share code snippets
 ## 🛠 Tech Stack
 
 - **Backend:** Java 17, Spring Boot 3, Spring Data JPA
+- **Frontend:** Next.js 16, React, TypeScript
 - **Database:** PostgreSQL
 - **DevOps:** Docker, Docker Compose
-- **Deployment:** Render & Supabase
+- **Deployment:** Render, Vercel & Supabase
 
 ## 🚀 Getting Started
 
@@ -28,6 +29,7 @@ A full-stack microservices social platform for developers to share code snippets
 
 3. **Verify the status:**
     - **Backend API:** `http://localhost:8080`
+    - **Frontend Client:** `http://localhost:3000`
     - **Database:** Reachable at `localhost:5432`
 
 ## ⚙️ Environment Variables
@@ -73,6 +75,7 @@ We use [Conventional Commits](https://www.conventionalcommits.org/) to keep a cl
 ```text
 UGEReveVue/
 ├── backend/
+├── frontend/
 ├── docker-compose.yml
 └── README.md
 ```
