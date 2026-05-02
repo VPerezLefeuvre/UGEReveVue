@@ -78,4 +78,4 @@ jobs:
       - name: Verify Cross-Service Connectivity
         # Ensures the Frontend container can resolve and reach the Backend
         run: |
-          docker exec ugerevevue-frontend curl -s http://ugerevevue-backend:8080/actuator/health
+          docker exec ugerevevue-frontend wget -qO- http://ugerevevue-backend:8080/actuator/health
