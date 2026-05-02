@@ -40,6 +40,13 @@ management:
     health:
       show-details: always
 
+# Swagger UI & OpenAPI Configuration
+springdoc:
+  show-actuator: true
+  swagger-ui:
+    path: /swagger-ui.html
+    operationsSorter: alpha
+
 # Custom Application Properties
 app:
   cors:
@@ -50,3 +57,4 @@ logging:
   level:
     root: INFO
     fr.vpl: DEBUG
+    org.hibernate.orm.jdbc.bind: TRACE
