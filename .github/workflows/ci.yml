@@ -66,7 +66,7 @@ jobs:
 
       - name: Spin up Docker containers
         # Builds and starts DB, Backend, and Frontend in a virtual network
-        run: docker-compose up -d --build
+        run: docker compose up -d --build
 
       - name: Wait for Actuator Health Check
         # Polls the backend until it returns an "UP" status
