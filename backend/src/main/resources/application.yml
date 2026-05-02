@@ -23,15 +23,38 @@ spring:
   jpa:
     hibernate:
       ddl-auto: ${HIBERNATE_DDL:validate}
-    show-sql: false
+    show-sql: ${SHOW_SQL:false}
     open-in-view: false
     properties:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
         format_sql: true
 
+# Monitoring Configuration
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health
+  endpoint:
+    health:
+      show-details: always
+
+# Swagger UI & OpenAPI Configuration
+springdoc:
+  show-actuator: true
+  swagger-ui:
+    path: /swagger-ui.html
+    operationsSorter: alpha
+
+# Custom Application Properties
+app:
+  cors:
+    allowed-origins: ${ALLOWED_ORIGINS}
+
 # Logging Configuration
 logging:
   level:
     root: INFO
     fr.vpl: DEBUG
+    org.hibernate.orm.jdbc.bind: TRACE
