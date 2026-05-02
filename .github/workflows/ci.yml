@@ -1,0 +1,81 @@
+name: UGEReveVue CI
+
+on:
+  push:
+    branches: [ dev, master ]
+  pull_request:
+    branches: [ dev, master ]
+
+jobs:
+  # --- Stage 1: Backend Validation ---
+  backend-check:
+    name: Backend Build & Compile
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: 'maven'
+
+      - name: Compile and Package
+        run: |
+          cd backend
+          chmod +x mvnw
+          ./mvnw clean package -DskipTests
+
+  # --- Stage 2: Frontend Validation ---
+  frontend-check:
+    name: Frontend Build & Lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: './frontend/package-lock.json'
+
+      - name: Install dependencies
+        run: cd frontend && npm install
+
+      - name: Static Analysis (Types & Lint)
+        # Ensures Zod schemas and TypeScript interfaces are consistent
+        run: |
+          cd frontend
+          npx tsc --noEmit
+          npm run lint
+
+      - name: Production Build
+        # Verifies the Next.js app can be compiled for production
+        run: cd frontend && npm run build
+
+  # --- Stage 3: Integration Testing (Master Branch Only) ---
+  production-health-check:
+    name: Full-Stack Docker Integration Test
+    needs: [backend-check, frontend-check]
+    if: github.ref == 'refs/heads/master'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Spin up Docker containers
+        # Builds and starts DB, Backend, and Frontend in a virtual network
+        run: docker-compose up -d --build
+
+      - name: Wait for Actuator Health Check
+        # Polls the backend until it returns an "UP" status
+        run: |
+          echo "Checking system availability..."
+          timeout 60s bash -c 'until curl -s http://localhost:8080/actuator/health | grep "UP"; do sleep 5; done'
+          echo "Success: Backend is responding!"
+
+      - name: Verify Cross-Service Connectivity
+        # Ensures the Frontend container can resolve and reach the Backend
+        run: |
+          docker exec ugerevevue-frontend curl -s http://ugerevevue-backend:8080/actuator/health

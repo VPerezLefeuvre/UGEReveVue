@@ -1,0 +1,60 @@
+# ===============================================================
+# UGEReveVue Backend Configuration
+# ===============================================================
+
+server:
+  # Render or other Cloud providers will inject the PORT variable
+  port: ${PORT:8080}
+
+spring:
+  application:
+    name: ugerevevue-backend
+
+  # Database Connection
+  # Uses environment variables for Production (Render/Supabase)
+  # Defaults to local PostgreSQL (Docker) for Development
+  datasource:
+    url: ${SPRING_DATASOURCE_URL}
+    username: ${SPRING_DATASOURCE_USERNAME}
+    password: ${SPRING_DATASOURCE_PASSWORD}
+    driver-class-name: org.postgresql.Driver
+
+  # JPA / Hibernate Settings
+  jpa:
+    hibernate:
+      ddl-auto: ${HIBERNATE_DDL:validate}
+    show-sql: ${SHOW_SQL:false}
+    open-in-view: false
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        format_sql: true
+
+# Monitoring Configuration
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health
+  endpoint:
+    health:
+      show-details: always
+
+# Swagger UI & OpenAPI Configuration
+springdoc:
+  show-actuator: true
+  swagger-ui:
+    path: /swagger-ui.html
+    operationsSorter: alpha
+
+# Custom Application Properties
+app:
+  cors:
+    allowed-origins: ${ALLOWED_ORIGINS}
+
+# Logging Configuration
+logging:
+  level:
+    root: INFO
+    fr.vpl: DEBUG
+    org.hibernate.orm.jdbc.bind: TRACE
