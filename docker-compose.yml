@@ -26,6 +26,13 @@ services:
       SPRING_DATASOURCE_USERNAME: postgres
       SPRING_DATASOURCE_PASSWORD: password
       HIBERNATE_DDL: update
+      SHOW_SQL: true
+      ALLOWED_ORIGINS: http://localhost:3000
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/actuator/health"]
+      interval: 2s
+      timeout: 10s
+      retries: 5
     depends_on:
       - db
 
@@ -39,9 +46,11 @@ services:
       - ./frontend:/app
       - /app/node_modules
     environment:
-      - NODE_ENV=development
+      NODE_ENV: development
+      NEXT_PUBLIC_API_URL: http://ugerevevue-backend:8080
     depends_on:
-      - backend
+      backend:
+        condition: service_healthy
 
 # Persistent Docker volume for PostgreSQL data
 volumes:
