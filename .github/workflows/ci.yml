@@ -1,0 +1,53 @@
+name: UGEReveVue CI
+
+on:
+  # Trigger the workflow on push or pull request for dev and master branches
+  push:
+    branches: [ dev, master ]
+  pull_request:
+    branches: [ dev, master ]
+
+jobs:
+  # Job to verify the Spring Boot Backend
+  backend-check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: 'maven'
+
+      - name: Build Backend
+        # Clean and package the JAR, skipping tests for faster CI check
+        run: |
+          cd backend
+          chmod +x mvnw
+          ./mvnw clean package -DskipTests
+
+  # Job to verify the Next.js Frontend
+  frontend-check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: './frontend/package-lock.json'
+
+      - name: Install Dependencies
+        run: cd frontend && npm install
+
+      - name: Next.js Lint
+        # Check for code quality and potential errors
+        run: cd frontend && npm run lint
+
+      - name: Build Frontend
+        # Ensure the production build finishes without errors
+        run: cd frontend && npm run build

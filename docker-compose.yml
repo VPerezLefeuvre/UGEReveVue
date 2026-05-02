@@ -1,0 +1,48 @@
+services:
+  # PostgreSQL database service
+  db:
+    image: postgres:15-alpine
+    container_name: ugerevevue-db
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: ugerevevue_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  # Spring Boot backend service
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: ugerevevue-backend
+    ports:
+      - "8080:8080"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/ugerevevue_db
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: password
+      HIBERNATE_DDL: update
+    depends_on:
+      - db
+
+  # Next.js frontend service
+  frontend:
+    build: ./frontend
+    container_name: ugerevevue-frontend
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    environment:
+      - NODE_ENV=development
+    depends_on:
+      - backend
+
+# Persistent Docker volume for PostgreSQL data
+volumes:
+  postgres_data:
