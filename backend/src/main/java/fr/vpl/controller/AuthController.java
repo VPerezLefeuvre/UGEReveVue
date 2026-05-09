@@ -9,7 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 /**
- * REST Controller for authentication tasks like registration and login.
+ * REST controller for authentication endpoints.
  */
 @RestController
 @RequestMapping("/api/auth")
@@ -18,11 +18,6 @@ public class AuthController {
 
     private final AuthService authService;
 
-    /**
-     * Handles new user registration.
-     * @param request Data validated by Jakarta Validation
-     * @return 201 Created on success
-     */
     @PostMapping("/register")
     public ResponseEntity<String> register(@RequestBody @Valid RegisterRequest request) {
         authService.register(request);

@@ -11,8 +11,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 
 /**
- * Main security configuration for the application.
- * Defines access rules, password encoding, and CORS/CSRF policies.
+ * Security configuration for public endpoints and password hashing.
  */
 @Configuration
 @EnableWebSecurity
@@ -21,13 +20,11 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-                .csrf(AbstractHttpConfigurer::disable) // Disabled for stateless API (JWT ready)
-                .cors(Customizer.withDefaults())      // Uses CorsConfig settings
+                .csrf(AbstractHttpConfigurer::disable)
+                .cors(Customizer.withDefaults())
                 .authorizeHttpRequests(auth -> auth
-                        // Publicly accessible endpoints
-                        .requestMatchers("/api/**", "/actuator/health").permitAll()
+                        .requestMatchers("/api/auth/register", "/actuator/health").permitAll()
                         .requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
-                        // All other requests require authentication
                         .anyRequest().authenticated()
                 );
         return http.build();

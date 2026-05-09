@@ -11,7 +11,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
- * Service handling authentication and user identity management.
+ * Handles registration and user identity rules.
  */
 @Service
 @RequiredArgsConstructor
@@ -21,13 +21,6 @@ public class AuthService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
 
-    /**
-     * Registers a new user in the system.
-     * Checks for duplicates before persistence to provide clean business errors.
-     *
-     * @param request Validated registration data
-     * @throws UserAlreadyExistsException if username or email is already taken
-     */
     @Transactional
     public void register(RegisterRequest request) {
         if (userRepository.existsByUsername(request.username())) {

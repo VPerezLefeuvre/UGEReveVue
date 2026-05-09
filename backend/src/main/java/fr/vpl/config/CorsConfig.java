@@ -2,17 +2,20 @@ package fr.vpl.config;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.util.StringUtils;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 /**
- * Cross-Origin Resource Sharing (CORS) configuration.
- * Allows the Frontend application to communicate with this API.
+ * CORS configuration for the frontend origins allowed to call the API.
  */
 @Configuration
 public class CorsConfig implements WebMvcConfigurer {
-    @Value("${app.cors.allowed-origins}")
-    private String allowedOrigins;
+    private final String[] allowedOrigins;
+
+    public CorsConfig(@Value("${app.cors.allowed-origins}") String allowedOrigins) {
+        this.allowedOrigins = StringUtils.commaDelimitedListToStringArray(allowedOrigins);
+    }
 
     @Override
     public void addCorsMappings(CorsRegistry registry) {

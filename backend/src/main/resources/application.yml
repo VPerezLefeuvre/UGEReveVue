@@ -3,8 +3,7 @@
 # ===============================================================
 
 server:
-  # Render or other Cloud providers will inject the PORT variable
-  port: ${PORT:8080}
+  port: ${PORT}
 
 spring:
   application:
@@ -22,8 +21,8 @@ spring:
   # JPA / Hibernate Settings
   jpa:
     hibernate:
-      ddl-auto: ${HIBERNATE_DDL:validate}
-    show-sql: ${SHOW_SQL:false}
+      ddl-auto: ${HIBERNATE_DDL}
+    show-sql: ${SHOW_SQL}
     open-in-view: false
     properties:
       hibernate:
@@ -38,7 +37,7 @@ management:
         include: health
   endpoint:
     health:
-      show-details: always
+      show-details: never
 
 # Swagger UI & OpenAPI Configuration
 springdoc:
@@ -57,4 +56,4 @@ logging:
   level:
     root: INFO
     fr.vpl: DEBUG
-    org.hibernate.orm.jdbc.bind: TRACE
+    org.hibernate.orm.jdbc.bind: WARN

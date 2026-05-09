@@ -6,8 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Validator checking password complexity (Uppercase, Digits, Special chars).
- * Length is handled by @Size in the DTO for better documentation.
+ * Validates password complexity. Length is handled by the DTO with {@code @Size}.
  */
 public class PasswordValidator implements ConstraintValidator<ValidPassword, String> {
 
@@ -22,7 +21,6 @@ public class PasswordValidator implements ConstraintValidator<ValidPassword, Str
         if (!password.matches(".*[@#$%^&+=!].*")) errorKeys.add("{validation.user.password.special}");
 
         if (!errorKeys.isEmpty()) {
-            // Replace default "Invalid password" with multiple specific errors
             context.disableDefaultConstraintViolation();
             for (String key : errorKeys) {
                 context.buildConstraintViolationWithTemplate(key)

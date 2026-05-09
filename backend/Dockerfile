@@ -11,6 +11,7 @@ RUN mvn clean package -DskipTests
 # Use a smaller JRE image for the production environment
 FROM eclipse-temurin:17-jdk-jammy
 WORKDIR /app
+
 # Copy only the compiled JAR from the build stage
 COPY --from=build /app/target/*.jar app.jar
 # Expose the port Spring Boot runs on
