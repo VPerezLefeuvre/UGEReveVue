@@ -1,5 +1,6 @@
 package fr.vpl.exception;
 
+import fr.vpl.dto.ErrorResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.MessageSource;
@@ -22,41 +23,55 @@ import java.util.stream.Collectors;
 @Slf4j
 public class GlobalExceptionHandler {
 
-    private final MessageSource messageSource;
-
     /**
-     * Handles DTO validation failures (@Valid).
-     * Group errors by field: { "username": ["Required", "Too short"] }
+     * Handles DTO validation errors (@Valid).
+     * Retrieves error slugs (e.g., "EMAIL_FORMAT_INVALID") from the constraints.
      */
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<Map<String, List<String>>> handleValidation(MethodArgumentNotValidException ex, Locale locale) {
+    public ResponseEntity<ErrorResponse> handleValidation(MethodArgumentNotValidException ex) {
         Map<String, List<String>> errors = ex.getBindingResult()
                 .getFieldErrors()
                 .stream()
                 .collect(Collectors.groupingBy(
                         FieldError::getField,
-                        Collectors.mapping(e -> messageSource.getMessage(e, locale), Collectors.toList())
+                        Collectors.mapping(FieldError::getDefaultMessage, Collectors.toList())
                 ));
-        return ResponseEntity.badRequest().body(errors);
+
+        return buildResponse(HttpStatus.BAD_REQUEST, "VALIDATION_FAILED", errors);
     }
 
     /**
-     * Handles business logic conflicts (duplicate user).
+     * Handles business logic conflicts (e.g., User already exists).
      */
     @ExceptionHandler(UserAlreadyExistsException.class)
-    public ResponseEntity<Map<String, String>> handleUserExists(UserAlreadyExistsException ex, Locale locale) {
-        String message = messageSource.getMessage(ex.getMessage(), null, locale);
-        return ResponseEntity.status(HttpStatus.CONFLICT).body(Map.of(ex.getField(), message));
+    public ResponseEntity<ErrorResponse> handleUserExists(UserAlreadyExistsException ex) {
+        Map<String, List<String>> errors = Map.of(ex.getField(), List.of(ex.getMessage()));
+
+        return buildResponse(HttpStatus.CONFLICT, "USER_ALREADY_EXISTS", errors);
     }
 
     /**
-     * Safety net for database constraints (race conditions).
-     * Logs the technical cause but hides it from the client for security.
+     * Safety net for database integrity violations (e.g., unique constraints).
+     * Logs the specific cause for debugging but returns a generic slug to the client.
      */
     @ExceptionHandler(DataIntegrityViolationException.class)
-    public ResponseEntity<Map<String, String>> handleSql(DataIntegrityViolationException ex, Locale locale) {
+    public ResponseEntity<ErrorResponse> handleSql(DataIntegrityViolationException ex) {
         log.error("Database Integrity Violation: {}", ex.getMostSpecificCause().getMessage());
-        String message = messageSource.getMessage("validation.database.conflict", null, locale);
-        return ResponseEntity.status(HttpStatus.CONFLICT).body(Map.of("error", message));
+
+        Map<String, List<String>> errors = Map.of("database", List.of("DATABASE_CONFLICT"));
+        return buildResponse(HttpStatus.CONFLICT, "DATA_INTEGRITY_ERROR", errors);
+    }
+
+    /**
+     * Internal helper to build a standardized error response.
+     */
+    private ResponseEntity<ErrorResponse> buildResponse(HttpStatus status, String code, Map<String, List<String>> details) {
+        ErrorResponse response = new ErrorResponse(
+                java.time.Instant.now().toString(),
+                status.value(),
+                code,
+                details
+        );
+        return ResponseEntity.status(status).body(response);
     }
 }

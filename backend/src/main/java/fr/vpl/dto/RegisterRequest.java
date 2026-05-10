@@ -12,18 +12,18 @@ import jakarta.validation.constraints.*;
  * @param password The raw password (validated via custom logic)
  */
 public record RegisterRequest(
-        @NotBlank(message = "{validation.user.username.required}")
-        @Size(min = 3, max = 20, message = "{validation.user.username.size}")
-        @Pattern(regexp = "^[a-zA-Z0-9_]*$", message = "{validation.user.username.pattern}")
+        @NotBlank(message = "USERNAME_REQUIRED")
+        @Size(min = 3, max = 20, message = "USERNAME_SIZE_INVALID")
+        @Pattern(regexp = "^[a-zA-Z0-9_]*$", message = "USERNAME_PATTERN_INVALID")
         String username,
 
-        @NotBlank(message = "{validation.user.email.required}")
-        @Size(max = 100, message = "{validation.user.email.size}")
-        @Email(message = "{validation.user.email.invalid}")
+        @NotBlank(message = "EMAIL_REQUIRED")
+        @Size(max = 100, message = "EMAIL_SIZE_INVALID")
+        @Email(message = "EMAIL_FORMAT_INVALID")
         String email,
 
-        @NotBlank(message = "{validation.user.password.required}")
-        @Size(min = 8, max = 128, message = "{validation.user.password.size}")
+        @NotBlank(message = "PASSWORD_REQUIRED")
+        @Size(min = 8, max = 128, message = "PASSWORD_SIZE_INVALID")
         @ValidPassword
         String password
 ) {}

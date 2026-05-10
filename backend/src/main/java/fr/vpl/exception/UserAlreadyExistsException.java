@@ -11,8 +11,7 @@ public class UserAlreadyExistsException extends RuntimeException {
     private final String field;
 
     public UserAlreadyExistsException(String field) {
-        // We pass the key used in messages.properties
-        super("validation.user." + field + ".exists");
+        super(field.toUpperCase() + "_ALREADY_EXISTS");
         this.field = field;
     }
 }

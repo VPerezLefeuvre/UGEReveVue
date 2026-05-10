@@ -31,9 +31,10 @@ services:
       ALLOWED_ORIGINS: http://localhost:3000
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8080/actuator/health"]
-      interval: 2s
-      timeout: 10s
+      interval: 10s
+      timeout: 5s
       retries: 5
+      start_period: 30s
     depends_on:
       - db
 
@@ -47,8 +48,8 @@ services:
       - ./frontend:/app
       - /app/node_modules
     environment:
-      NODE_ENV: development
-      NEXT_PUBLIC_API_URL: http://ugerevevue-backend:8080
+      BACKEND_INTERNAL_URL: http://ugerevevue-backend:8080
+      NEXT_PUBLIC_API_URL: http://localhost:8080
     depends_on:
       backend:
         condition: service_healthy
