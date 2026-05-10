@@ -16,9 +16,9 @@ public class PasswordValidator implements ConstraintValidator<ValidPassword, Str
 
         List<String> errorKeys = new ArrayList<>();
 
-        if (!password.matches(".*[A-Z].*")) errorKeys.add("{validation.user.password.uppercase}");
-        if (!password.matches(".*[0-9].*")) errorKeys.add("{validation.user.password.digit}");
-        if (!password.matches(".*[@#$%^&+=!].*")) errorKeys.add("{validation.user.password.special}");
+        if (!password.matches(".*[A-Z].*")) errorKeys.add("PASSWORD_MISSING_UPPERCASE");
+        if (!password.matches(".*[0-9].*")) errorKeys.add("PASSWORD_MISSING_DIGIT");
+        if (!password.matches(".*[@#$%^&+=!].*")) errorKeys.add("PASSWORD_MISSING_SPECIAL");
 
         if (!errorKeys.isEmpty()) {
             context.disableDefaultConstraintViolation();

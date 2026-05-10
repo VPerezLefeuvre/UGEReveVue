@@ -3,7 +3,6 @@ package fr.vpl.exception;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import fr.vpl.dto.RegisterRequest;
 import fr.vpl.repository.UserRepository;
-import fr.vpl.support.MessageSourceTestSupport;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -26,7 +25,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @AutoConfigureMockMvc
 @ActiveProfiles("test")
 @DisplayName("GlobalExceptionHandler integration tests")
-class GlobalExceptionHandlerTest extends MessageSourceTestSupport {
+class GlobalExceptionHandlerTest {
 
     @Autowired
     private MockMvc mockMvc;
@@ -53,10 +52,10 @@ class GlobalExceptionHandlerTest extends MessageSourceTestSupport {
                 .andExpect(status().isCreated());
 
         mockMvc.perform(post("/api/auth/register")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(request)))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isConflict())
-                .andExpect(jsonPath("$.username").value(message("validation.user.username.exists")));
+                .andExpect(jsonPath("$.details.username[0]").value("USERNAME_ALREADY_EXISTS"));
     }
 
     @Test
@@ -65,12 +64,12 @@ class GlobalExceptionHandlerTest extends MessageSourceTestSupport {
         RegisterRequest request = new RegisterRequest("", "invalid-email", "weak");
 
         mockMvc.perform(post("/api/auth/register")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(request)))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.username").isArray())
-                .andExpect(jsonPath("$.email").isArray())
-                .andExpect(jsonPath("$.password").isArray());
+                .andExpect(jsonPath("$.details.username").isArray())
+                .andExpect(jsonPath("$.details.email").isArray())
+                .andExpect(jsonPath("$.details.password").isArray());
     }
 
 }

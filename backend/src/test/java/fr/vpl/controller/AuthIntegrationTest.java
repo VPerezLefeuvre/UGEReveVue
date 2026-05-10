@@ -4,7 +4,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import fr.vpl.dto.RegisterRequest;
 import fr.vpl.entity.User;
 import fr.vpl.repository.UserRepository;
-import fr.vpl.support.MessageSourceTestSupport;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -28,7 +27,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @AutoConfigureMockMvc
 @ActiveProfiles("test")
 @DisplayName("Authentication workflow integration tests")
-class AuthIntegrationTest extends MessageSourceTestSupport {
+class AuthIntegrationTest {
 
     @Autowired
     private MockMvc mockMvc;
@@ -53,7 +52,9 @@ class AuthIntegrationTest extends MessageSourceTestSupport {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isCreated())
-                .andExpect(content().string("User registered successfully!"));
+                .andExpect(jsonPath("$.id").isNumber())
+                .andExpect(jsonPath("$.username").value("expert_java"))
+                .andExpect(jsonPath("$.email").value("expert@vpl.fr"));
 
         User savedUser = userRepository.findByUsername("expert_java").orElseThrow();
         assertThat(savedUser.getEmail()).isEqualTo("expert@vpl.fr");
@@ -73,10 +74,10 @@ class AuthIntegrationTest extends MessageSourceTestSupport {
                 .andExpect(status().isCreated());
 
         mockMvc.perform(post("/api/auth/register")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(request)))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isConflict())
-                .andExpect(jsonPath("$.username").value(message("validation.user.username.exists")));
+                .andExpect(jsonPath("$.details.username[0]").value("USERNAME_ALREADY_EXISTS"));
     }
 
     @Test
@@ -91,10 +92,10 @@ class AuthIntegrationTest extends MessageSourceTestSupport {
                 .andExpect(status().isCreated());
 
         mockMvc.perform(post("/api/auth/register")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(duplicateEmailRequest)))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(duplicateEmailRequest)))
                 .andExpect(status().isConflict())
-                .andExpect(jsonPath("$.email").value(message("validation.user.email.exists")));
+                .andExpect(jsonPath("$.details.email[0]").value("EMAIL_ALREADY_EXISTS"));
     }
 
 }

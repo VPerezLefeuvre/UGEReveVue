@@ -2,9 +2,9 @@ package fr.vpl.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import fr.vpl.dto.RegisterRequest;
+import fr.vpl.entity.User;
 import fr.vpl.exception.UserAlreadyExistsException;
 import fr.vpl.service.AuthService;
-import fr.vpl.support.MessageSourceTestSupport;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,6 +17,7 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -29,7 +30,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @AutoConfigureMockMvc(addFilters = false)
 @ActiveProfiles("test")
 @DisplayName("AuthController MVC tests")
-class AuthControllerTest extends MessageSourceTestSupport {
+class AuthControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
@@ -44,12 +45,21 @@ class AuthControllerTest extends MessageSourceTestSupport {
     @DisplayName("register returns 201 when the request is valid")
     void register_shouldReturnCreated_whenRequestIsValid() throws Exception {
         RegisterRequest request = new RegisterRequest("john_doe", "john@example.com", "Password123!");
+        User user = User.builder()
+                .id(1L)
+                .username(request.username())
+                .email(request.email())
+                .password("encoded")
+                .build();
+        when(authService.register(request)).thenReturn(user);
 
         mockMvc.perform(post("/api/auth/register")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isCreated())
-                .andExpect(content().string("User registered successfully!"));
+                .andExpect(jsonPath("$.id").value(1))
+                .andExpect(jsonPath("$.username").value("john_doe"))
+                .andExpect(jsonPath("$.email").value("john@example.com"));
 
         verify(authService).register(request);
     }
@@ -60,10 +70,10 @@ class AuthControllerTest extends MessageSourceTestSupport {
         RegisterRequest request = new RegisterRequest("john_doe", "john@example.com", "weak");
 
         mockMvc.perform(post("/api/auth/register")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(request)))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.password").exists());
+                .andExpect(jsonPath("$.details.password").exists());
     }
 
     @Test
@@ -73,10 +83,10 @@ class AuthControllerTest extends MessageSourceTestSupport {
         doThrow(new UserAlreadyExistsException("username")).when(authService).register(request);
 
         mockMvc.perform(post("/api/auth/register")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(request)))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isConflict())
-                .andExpect(jsonPath("$.username").value(message("validation.user.username.exists")));
+                .andExpect(jsonPath("$.details.username[0]").value("USERNAME_ALREADY_EXISTS"));
     }
 
     @Test
@@ -86,10 +96,10 @@ class AuthControllerTest extends MessageSourceTestSupport {
         doThrow(new UserAlreadyExistsException("email")).when(authService).register(request);
 
         mockMvc.perform(post("/api/auth/register")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(request)))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isConflict())
-                .andExpect(jsonPath("$.email").value(message("validation.user.email.exists")));
+                .andExpect(jsonPath("$.details.email[0]").value("EMAIL_ALREADY_EXISTS"));
     }
 
 }

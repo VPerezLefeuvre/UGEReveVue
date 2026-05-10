@@ -51,9 +51,9 @@ class PasswordValidatorTest {
 
         assertThat(result).isFalse();
         verify(context).disableDefaultConstraintViolation();
-        verify(context).buildConstraintViolationWithTemplate("{validation.user.password.uppercase}");
-        verify(context).buildConstraintViolationWithTemplate("{validation.user.password.digit}");
-        verify(context).buildConstraintViolationWithTemplate("{validation.user.password.special}");
+        verify(context).buildConstraintViolationWithTemplate("PASSWORD_MISSING_UPPERCASE");
+        verify(context).buildConstraintViolationWithTemplate("PASSWORD_MISSING_DIGIT");
+        verify(context).buildConstraintViolationWithTemplate("PASSWORD_MISSING_SPECIAL");
         verify(builder, times(3)).addConstraintViolation();
     }
 

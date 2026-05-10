@@ -32,12 +32,12 @@ class SecurityAndExceptionTest {
     @DisplayName("register returns 400 with field errors when JSON fields are invalid")
     void register_shouldReturnBadRequestWithFieldErrors_whenFieldsAreInvalid() throws Exception {
         mockMvc.perform(post("/api/auth/register")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content("{ \"username\": \"\", \"email\": \"invalid-email\", \"password\": \"123\" }"))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{ \"username\": \"\", \"email\": \"invalid-email\", \"password\": \"123\" }"))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.username").exists())
-                .andExpect(jsonPath("$.email").exists())
-                .andExpect(jsonPath("$.password").exists());
+                .andExpect(jsonPath("$.details.username").exists())
+                .andExpect(jsonPath("$.details.email").exists())
+                .andExpect(jsonPath("$.details.password").exists());
     }
 
     @Test

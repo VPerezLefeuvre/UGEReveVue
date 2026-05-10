@@ -1,6 +1,8 @@
 package fr.vpl.controller;
 
 import fr.vpl.dto.RegisterRequest;
+import fr.vpl.dto.RegisterResponse;
+import fr.vpl.entity.User;
 import fr.vpl.service.AuthService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -19,8 +21,9 @@ public class AuthController {
     private final AuthService authService;
 
     @PostMapping("/register")
-    public ResponseEntity<String> register(@RequestBody @Valid RegisterRequest request) {
-        authService.register(request);
-        return ResponseEntity.status(HttpStatus.CREATED).body("User registered successfully!");
+    public ResponseEntity<RegisterResponse> register(@RequestBody @Valid RegisterRequest request) {
+        User user = authService.register(request);
+        var response = new RegisterResponse(user.getId(), user.getUsername(), user.getEmail());
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 }

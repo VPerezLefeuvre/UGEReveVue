@@ -64,7 +64,7 @@ class AuthServiceTest {
 
         assertThatThrownBy(() -> authService.register(request))
                 .isInstanceOf(UserAlreadyExistsException.class)
-                .hasMessage("validation.user.username.exists");
+                .hasMessage("USERNAME_ALREADY_EXISTS");
 
         verify(userRepository, never()).existsByEmail(anyString());
         verify(passwordEncoder, never()).encode(anyString());
@@ -81,7 +81,7 @@ class AuthServiceTest {
 
         assertThatThrownBy(() -> authService.register(request))
                 .isInstanceOf(UserAlreadyExistsException.class)
-                .hasMessage("validation.user.email.exists");
+                .hasMessage("EMAIL_ALREADY_EXISTS");
 
         verify(passwordEncoder, never()).encode(anyString());
         verify(userRepository, never()).save(any(User.class));

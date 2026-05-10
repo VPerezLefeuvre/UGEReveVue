@@ -42,7 +42,7 @@ class RegisterRequestTest {
 
         assertThat(violations)
                 .extracting(ConstraintViolation::getMessageTemplate)
-                .contains("{validation.user.email.invalid}");
+                .contains("EMAIL_FORMAT_INVALID");
     }
 
     @Test
@@ -53,7 +53,7 @@ class RegisterRequestTest {
 
         assertThat(violations)
                 .extracting(ConstraintViolation::getMessageTemplate)
-                .contains("{validation.user.username.pattern}");
+                .contains("USERNAME_PATTERN_INVALID");
     }
 
     @Test

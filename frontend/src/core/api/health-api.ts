@@ -1,7 +1,7 @@
-import { HealthResponseSchema } from '../type/health';
+import { HealthResponseSchema } from "@/core/schemas/health-schema";
 
 export async function getBackendHealth() {
-    const API_URL = process.env.NEXT_PUBLIC_API_URL
+    const API_URL = process.env.BACKEND_INTERNAL_URL ?? process.env.NEXT_PUBLIC_API_URL;
     try {
         const response = await fetch(`${API_URL}/actuator/health`, { cache: 'no-store' });
 

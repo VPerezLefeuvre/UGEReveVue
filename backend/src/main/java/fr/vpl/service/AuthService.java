@@ -22,7 +22,7 @@ public class AuthService {
     private final PasswordEncoder passwordEncoder;
 
     @Transactional
-    public void register(RegisterRequest request) {
+    public User register(RegisterRequest request) {
         if (userRepository.existsByUsername(request.username())) {
             log.warn("Registration failed: Username {} already exists", request.username());
             throw new UserAlreadyExistsException("username");
@@ -42,5 +42,7 @@ public class AuthService {
 
         userRepository.save(user);
         log.info("User successfully registered: {}", user.getUsername());
+        return user;
+
     }
 }
