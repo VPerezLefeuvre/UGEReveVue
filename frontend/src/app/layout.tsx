@@ -3,17 +3,17 @@ import "./globals.css";
 
 export const metadata: Metadata = {
   title: "UGEReveVue",
-  description: "Plateforme sociale pour développeurs : partage de code, revues de pairs et exécution de tests."
+  description: "A social platform for code sharing, peer reviews, and test execution.",
 };
 
 export default function RootLayout({
-                                     children,
-                                   }: Readonly<{
+  children,
+}: Readonly<{
   children: React.ReactNode;
 }>) {
   return (
-      <html lang="fr">
+    <html lang="en">
       <body>{children}</body>
-      </html>
+    </html>
   );
 }
