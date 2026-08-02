@@ -1,8 +1,10 @@
 package fr.vpl.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import fr.vpl.dto.LoginRequest;
 import fr.vpl.dto.RegisterRequest;
 import fr.vpl.entity.User;
+import fr.vpl.exception.InvalidCredentialsException;
 import fr.vpl.exception.UserAlreadyExistsException;
 import fr.vpl.service.AuthService;
 import org.junit.jupiter.api.DisplayName;
@@ -100,6 +102,58 @@ class AuthControllerTest {
                 .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isConflict())
                 .andExpect(jsonPath("$.details.email[0]").value("EMAIL_ALREADY_EXISTS"));
+    }
+
+    @Test
+    @DisplayName("login returns 200 with user data when credentials are valid")
+    void login_shouldReturnOkWithUserData_whenCredentialsAreValid() throws Exception {
+        LoginRequest request = new LoginRequest("john@example.com", "Password123!");
+        User user = User.builder()
+                .id(1L)
+                .username("john_doe")
+                .email(request.email())
+                .password("encoded")
+                .role(User.Role.USER)
+                .build();
+        when(authService.login(request)).thenReturn(user);
+
+        mockMvc.perform(post("/api/auth/login")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(1))
+                .andExpect(jsonPath("$.username").value("john_doe"))
+                .andExpect(jsonPath("$.email").value("john@example.com"))
+                .andExpect(jsonPath("$.role").value("USER"));
+
+        verify(authService).login(request);
+    }
+
+    @Test
+    @DisplayName("login returns 400 with field errors when the request is invalid")
+    void login_shouldReturnBadRequest_whenRequestIsInvalid() throws Exception {
+        LoginRequest request = new LoginRequest("", "");
+
+        mockMvc.perform(post("/api/auth/login")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.details.email").exists())
+                .andExpect(jsonPath("$.details.password").exists());
+    }
+
+    @Test
+    @DisplayName("login returns 401 when credentials are invalid")
+    void login_shouldReturnUnauthorized_whenCredentialsAreInvalid() throws Exception {
+        LoginRequest request = new LoginRequest("john@example.com", "Wrong123!");
+        doThrow(new InvalidCredentialsException()).when(authService).login(request);
+
+        mockMvc.perform(post("/api/auth/login")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isUnauthorized())
+                .andExpect(jsonPath("$.code").value("INVALID_CREDENTIALS"))
+                .andExpect(jsonPath("$.details.auth[0]").value("INVALID_CREDENTIALS"));
     }
 
 }

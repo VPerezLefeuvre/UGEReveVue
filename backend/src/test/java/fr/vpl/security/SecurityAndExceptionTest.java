@@ -52,6 +52,17 @@ class SecurityAndExceptionTest {
     }
 
     @Test
+    @DisplayName("login is publicly reachable and returns validation errors")
+    void login_shouldReturnBadRequestWithFieldErrors_whenRequestIsInvalid() throws Exception {
+        mockMvc.perform(post("/api/auth/login")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{ \"email\": \"\", \"password\": \"\" }"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.details.email").exists())
+                .andExpect(jsonPath("$.details.password").exists());
+    }
+
+    @Test
     @DisplayName("non API endpoints require authentication")
     void protectedEndpoint_shouldReturnForbidden_whenRequestIsAnonymous() throws Exception {
         mockMvc.perform(get("/admin/users")

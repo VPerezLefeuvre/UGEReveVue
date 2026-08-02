@@ -6,6 +6,10 @@ export const RegisterSuccessSchema = z.object({
   email: z.string(),
 });
 
+export const LoginSuccessSchema = RegisterSuccessSchema.extend({
+  role: z.string(),
+});
+
 export const ApiErrorSchema = z.object({
   timestamp: z.string().optional(),
   status: z.number().optional(),
@@ -14,4 +18,5 @@ export const ApiErrorSchema = z.object({
 });
 
 export type RegisterSuccessResponse = z.infer<typeof RegisterSuccessSchema>;
+export type LoginSuccessResponse = z.infer<typeof LoginSuccessSchema>;
 export type ApiErrorResponse = z.infer<typeof ApiErrorSchema>;

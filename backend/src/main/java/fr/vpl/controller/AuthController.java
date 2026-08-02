@@ -1,5 +1,7 @@
 package fr.vpl.controller;
 
+import fr.vpl.dto.LoginRequest;
+import fr.vpl.dto.LoginResponse;
 import fr.vpl.dto.RegisterRequest;
 import fr.vpl.dto.RegisterResponse;
 import fr.vpl.entity.User;
@@ -25,5 +27,12 @@ public class AuthController {
         User user = authService.register(request);
         var response = new RegisterResponse(user.getId(), user.getUsername(), user.getEmail());
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
+    }
+
+    @PostMapping("/login")
+    public ResponseEntity<LoginResponse> login(@RequestBody @Valid LoginRequest request) {
+        User user = authService.login(request);
+        var response = new LoginResponse(user.getId(), user.getUsername(), user.getEmail(), user.getRole().name());
+        return ResponseEntity.ok(response);
     }
 }

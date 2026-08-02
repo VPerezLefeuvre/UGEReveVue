@@ -17,6 +17,12 @@ export default function Home() {
           </Link>
           <Link
             className="inline-flex h-11 items-center justify-center rounded-md border border-slate-300 bg-white px-4 text-sm font-medium text-slate-900 transition-colors hover:bg-slate-100"
+            href="/login"
+          >
+            Sign in
+          </Link>
+          <Link
+            className="inline-flex h-11 items-center justify-center rounded-md border border-slate-300 bg-white px-4 text-sm font-medium text-slate-900 transition-colors hover:bg-slate-100"
             href="/status"
           >
             View status

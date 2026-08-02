@@ -51,6 +51,16 @@ public class GlobalExceptionHandler {
     }
 
     /**
+     * Handles failed login attempts with a generic client-safe error.
+     */
+    @ExceptionHandler(InvalidCredentialsException.class)
+    public ResponseEntity<ErrorResponse> handleInvalidCredentials(InvalidCredentialsException ex) {
+        Map<String, List<String>> errors = Map.of("auth", List.of(ex.getMessage()));
+
+        return buildResponse(HttpStatus.UNAUTHORIZED, "INVALID_CREDENTIALS", errors);
+    }
+
+    /**
      * Safety net for database integrity violations (e.g., unique constraints).
      * Logs the specific cause for debugging but returns a generic slug to the client.
      */

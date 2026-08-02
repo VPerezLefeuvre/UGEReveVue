@@ -8,6 +8,14 @@ export const en = {
       missingApiUrl: "Missing API configuration: NEXT_PUBLIC_API_URL.",
       unknownError: "Something went wrong. Please try again.",
     },
+    login: {
+      success: "You are now signed in.",
+      validationFailed: "Please fix the highlighted fields and try again.",
+      unavailable: "The server is unavailable. Please try again later.",
+      unreachable: "Unable to contact the server.",
+      missingApiUrl: "Missing API configuration: NEXT_PUBLIC_API_URL.",
+      unknownError: "Something went wrong. Please try again.",
+    },
   },
   validation: {
     USERNAME_REQUIRED: "Username is required.",
@@ -26,6 +34,7 @@ export const en = {
     DATABASE_CONFLICT: "This account cannot be created with the submitted information.",
     DATA_INTEGRITY_ERROR: "This account cannot be created with the submitted information.",
     USER_ALREADY_EXISTS: "An account with these details already exists.",
+    INVALID_CREDENTIALS: "Email or password is incorrect.",
     VALIDATION_FAILED: "Please fix the highlighted fields and try again.",
   },
 } as const;

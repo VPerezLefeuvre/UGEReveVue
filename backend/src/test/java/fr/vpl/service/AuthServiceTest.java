@@ -1,7 +1,9 @@
 package fr.vpl.service;
 
+import fr.vpl.dto.LoginRequest;
 import fr.vpl.dto.RegisterRequest;
 import fr.vpl.entity.User;
+import fr.vpl.exception.InvalidCredentialsException;
 import fr.vpl.exception.UserAlreadyExistsException;
 import fr.vpl.repository.UserRepository;
 import org.junit.jupiter.api.DisplayName;
@@ -13,6 +15,8 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
+import java.util.Optional;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.*;
@@ -20,7 +24,7 @@ import static org.mockito.Mockito.*;
 /**
  * Unit tests for {@link AuthService}.
  * Collaborators are mocked so the assertions focus on duplicate checks,
- * password hashing, and the entity sent to persistence.
+ * credential verification, password hashing, and the entity sent to persistence.
  */
 @ExtendWith(MockitoExtension.class)
 @DisplayName("AuthService unit tests")
@@ -85,5 +89,54 @@ class AuthServiceTest {
 
         verify(passwordEncoder, never()).encode(anyString());
         verify(userRepository, never()).save(any(User.class));
+    }
+
+    @Test
+    @DisplayName("login returns the user when credentials are valid")
+    void login_shouldReturnUser_whenCredentialsAreValid() {
+        LoginRequest request = new LoginRequest("bob@vpl.fr", "Secure123!");
+        User user = User.builder()
+                .id(10L)
+                .username("bob")
+                .email("bob@vpl.fr")
+                .password("hashed_password")
+                .role(User.Role.USER)
+                .build();
+        when(userRepository.findByEmail("bob@vpl.fr")).thenReturn(Optional.of(user));
+        when(passwordEncoder.matches("Secure123!", "hashed_password")).thenReturn(true);
+
+        User result = authService.login(request);
+
+        assertThat(result).isSameAs(user);
+    }
+
+    @Test
+    @DisplayName("login throws a generic error when email is unknown")
+    void login_shouldThrowGenericError_whenEmailIsUnknown() {
+        LoginRequest request = new LoginRequest("missing@vpl.fr", "Secure123!");
+        when(userRepository.findByEmail("missing@vpl.fr")).thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> authService.login(request))
+                .isInstanceOf(InvalidCredentialsException.class)
+                .hasMessage("INVALID_CREDENTIALS");
+
+        verify(passwordEncoder, never()).matches(anyString(), anyString());
+    }
+
+    @Test
+    @DisplayName("login throws a generic error when password is invalid")
+    void login_shouldThrowGenericError_whenPasswordIsInvalid() {
+        LoginRequest request = new LoginRequest("bob@vpl.fr", "Wrong123!");
+        User user = User.builder()
+                .username("bob")
+                .email("bob@vpl.fr")
+                .password("hashed_password")
+                .build();
+        when(userRepository.findByEmail("bob@vpl.fr")).thenReturn(Optional.of(user));
+        when(passwordEncoder.matches("Wrong123!", "hashed_password")).thenReturn(false);
+
+        assertThatThrownBy(() -> authService.login(request))
+                .isInstanceOf(InvalidCredentialsException.class)
+                .hasMessage("INVALID_CREDENTIALS");
     }
 }

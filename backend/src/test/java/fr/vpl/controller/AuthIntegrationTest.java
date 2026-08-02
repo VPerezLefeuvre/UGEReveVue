@@ -1,6 +1,7 @@
 package fr.vpl.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import fr.vpl.dto.LoginRequest;
 import fr.vpl.dto.RegisterRequest;
 import fr.vpl.entity.User;
 import fr.vpl.repository.UserRepository;
@@ -96,6 +97,46 @@ class AuthIntegrationTest {
                 .content(objectMapper.writeValueAsString(duplicateEmailRequest)))
                 .andExpect(status().isConflict())
                 .andExpect(jsonPath("$.details.email[0]").value("EMAIL_ALREADY_EXISTS"));
+    }
+
+    @Test
+    @DisplayName("login returns the authenticated user when credentials are valid")
+    void login_shouldReturnAuthenticatedUser_whenCredentialsAreValid() throws Exception {
+        RegisterRequest registerRequest = new RegisterRequest("reviewer", "reviewer@vpl.fr", "Pass123!");
+        LoginRequest loginRequest = new LoginRequest("reviewer@vpl.fr", "Pass123!");
+
+        mockMvc.perform(post("/api/auth/register")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(registerRequest)))
+                .andExpect(status().isCreated());
+
+        mockMvc.perform(post("/api/auth/login")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(loginRequest)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").isNumber())
+                .andExpect(jsonPath("$.username").value("reviewer"))
+                .andExpect(jsonPath("$.email").value("reviewer@vpl.fr"))
+                .andExpect(jsonPath("$.role").value("USER"));
+    }
+
+    @Test
+    @DisplayName("login returns a generic unauthorized response when password is invalid")
+    void login_shouldReturnUnauthorized_whenPasswordIsInvalid() throws Exception {
+        RegisterRequest registerRequest = new RegisterRequest("reviewer", "reviewer@vpl.fr", "Pass123!");
+        LoginRequest loginRequest = new LoginRequest("reviewer@vpl.fr", "Wrong123!");
+
+        mockMvc.perform(post("/api/auth/register")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(registerRequest)))
+                .andExpect(status().isCreated());
+
+        mockMvc.perform(post("/api/auth/login")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(loginRequest)))
+                .andExpect(status().isUnauthorized())
+                .andExpect(jsonPath("$.code").value("INVALID_CREDENTIALS"))
+                .andExpect(jsonPath("$.details.auth[0]").value("INVALID_CREDENTIALS"));
     }
 
 }
