@@ -1,6 +1,8 @@
 import { getBackendHealth } from '@/core/api/health-api';
 import { StatusIndicator } from '@/components/StatusIndicator';
 
+export const dynamic = 'force-dynamic';
+
 export default async function StatusPage() {
     const health = await getBackendHealth();
 

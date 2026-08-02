@@ -3,10 +3,12 @@ name: UGEReveVue CI
 on:
   push:
     branches: [ dev, master ]
+
   pull_request:
     branches: [ dev, master ]
 
 jobs:
+
   # --- Stage 1: Backend Validation ---
   backend-check:
     name: Backend Build & Compile
@@ -59,7 +61,6 @@ jobs:
   production-health-check:
     name: Full-Stack Docker Integration Test
     needs: [backend-check, frontend-check]
-    if: github.ref == 'refs/heads/master'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
